@@ -1,6 +1,5 @@
 package com.urooz.resumeanalyzer.controller;
 
-
 import com.urooz.resumeanalyzer.dto.ResumeAnalysisResponse;
 import com.urooz.resumeanalyzer.service.ResumeService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,14 @@ public class ResumeController {
             @RequestParam("resumeFile") MultipartFile resumeFile,
             @RequestParam("jobDescription") String jobDescription
     ) {
-        log.info("Received resume: {} for analysis", resumeFile.getOriginalFilename());
+        if (resumeFile == null || resumeFile.isEmpty()) {
+            log.error("Resume file is missing or empty!");
+            return ResponseEntity.badRequest().build();
+        }
+
+        log.info("Received resume: {}", resumeFile.getOriginalFilename());
+        log.info("Job Description: {}", jobDescription);
+
         ResumeAnalysisResponse response = resumeService.analyzeResume(resumeFile, jobDescription);
         return ResponseEntity.ok(response);
     }

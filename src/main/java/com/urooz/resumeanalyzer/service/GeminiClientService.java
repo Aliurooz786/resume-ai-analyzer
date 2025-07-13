@@ -6,10 +6,9 @@ import com.urooz.resumeanalyzer.prompt.GeminiPromptBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,8 @@ public class GeminiClientService {
     public String analyze(String resumeText, String jobDescription) {
         resumeText = resumeText != null ? resumeText.substring(0, Math.min(resumeText.length(), 1500)) : "";
         jobDescription = jobDescription != null ? jobDescription.substring(0, Math.min(jobDescription.length(), 600)) : "";
-        log.info("📄 Resume chars: {}, JD chars: {}", resumeText.length(), jobDescription.length());
+
+        log.info("Resume chars: {}, JD chars: {}", resumeText.length(), jobDescription.length());
 
         String prompt = promptBuilder.buildResumeComparisonPrompt(resumeText, jobDescription);
 
@@ -40,23 +40,24 @@ public class GeminiClientService {
                 )
         );
 
-        String response = WebClient.builder()
-                .build()
-                .post()
-                .uri(endpoint)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body)
-                .retrieve()
-                .bodyToMono(String.class)
-                .onErrorResume(e -> {
-                    log.error("Gemini API error: {}", e.getMessage());
-                    return Mono.just("Error calling Gemini API: " + e.getMessage());
-                })
-                .block();
-
-        log.info("🧠 Gemini raw response:\n{}", response);
-
         try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    endpoint,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            String response = responseEntity.getBody();
+            log.info("Gemini raw response:\n{}", response);
+
             JsonNode root = objectMapper.readTree(response);
             JsonNode textNode = root
                     .path("candidates").get(0)
@@ -74,8 +75,8 @@ public class GeminiClientService {
             return aiText;
 
         } catch (Exception e) {
-            log.error("Failed to parse Gemini response JSON", e);
-            return "Error parsing Gemini response: " + e.getMessage();
+            log.error("Failed to call Gemini API or parse response", e);
+            return "Error calling Gemini API: " + e.getMessage();
         }
     }
 }

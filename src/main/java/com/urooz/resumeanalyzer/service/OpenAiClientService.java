@@ -2,13 +2,11 @@ package com.urooz.resumeanalyzer.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -40,11 +38,7 @@ Job Description:
 %s
 """, resumeText, jobDescription);
 
-        WebClient client = WebClient.builder()
-                .baseUrl("https://api.openai.com/v1")
-                .defaultHeader("Authorization", "Bearer " + apiKey)
-                .build();
-
+        // Prepare request body
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-3.5-turbo",
                 "max_tokens", 200,
@@ -55,25 +49,33 @@ Job Description:
                 )
         );
 
-        String response = client.post()
-                .uri("/chat/completions")
-                .bodyValue(requestBody)
-                .retrieve()
-                .onStatus(
-                        status -> status.is4xxClientError() || status.is5xxServerError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> {
-                            log.error("OpenAI API error: {}", error);
-                            return Mono.error(new RuntimeException("OpenAI API error: " + error));
-                        })
-                )
-                .bodyToMono(String.class)
-                .retryWhen(
-                        Retry.backoff(3, Duration.ofSeconds(2))
-                                .filter(throwable -> throwable instanceof WebClientResponseException.TooManyRequests)
-                )
-                .block();
+        // Prepare headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
 
-        log.info("AI response received.");
-        return response;
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        String endpoint = "https://api.openai.com/v1/chat/completions";
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(
+                    endpoint,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            log.info("AI response received.");
+            return response.getBody();
+
+        } catch (HttpStatusCodeException e) {
+            log.error("OpenAI API error: {}", e.getResponseBodyAsString());
+            return "OpenAI API error: " + e.getResponseBodyAsString();
+        } catch (Exception e) {
+            log.error("Exception while calling OpenAI API", e);
+            return "Error: " + e.getMessage();
+        }
     }
 }
