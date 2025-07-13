@@ -1,79 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>com.urooz</groupId>
 	<artifactId>resume-ai-analyzer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>resume-ai-analyzer</name>
 	<description>AI-powered application to analyze resumes, assess job-fit, and generate improvement suggestions using OpenAI GPT API.</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
 	<dependencies>
-		<!-- ✅ Core Spring Boot -->
+		<!-- ✅ Spring Boot Web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!-- ✅ Lombok (for cleaner code, @Slf4j, @Builder, etc.) -->
+		<!-- ✅ Lombok (cleaner code) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- ✅ Apache PDFBox (for parsing resume PDF) -->
+		<!-- ✅ Apache PDFBox (PDF parsing) -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
 			<version>2.0.27</version>
 		</dependency>
 
-		<!-- ✅ JSON Handling (optional but good to have) -->
+		<!-- ✅ Jackson for JSON handling -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
-		<!-- ✅ HTTP Client (for OpenAI API call) -->
+		<!-- ✅ OpenAI API - Main Service -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<groupId>com.theokanning.openai-gpt3-java</groupId>
+			<artifactId>service</artifactId>
+			<version>0.12.0</version>
 		</dependency>
 
-		<!-- ✅ Spring Boot DevTools (for hot reload during dev) -->
+		<!-- ✅ Retrofit2 (required by OpenAI client) -->
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>retrofit</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+
+		<!-- ✅ OkHttp (required by OpenAI client) -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.10.0</version>
+		</dependency>
+
+		<!-- ✅ Spring Boot DevTools (auto-restart during dev) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- ✅ Testing (already present) -->
+		<!-- ✅ Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -85,5 +97,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

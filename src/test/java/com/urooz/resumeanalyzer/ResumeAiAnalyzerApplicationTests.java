@@ -1,4 +1,4 @@
-package com.urooz.resume_ai_analyzer;
+package com.urooz.resumeanalyzer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

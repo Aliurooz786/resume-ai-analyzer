@@ -1,4 +1,4 @@
-package com.urooz.resume_ai_analyzer.model;
+package com.urooz.resumeanalyzer.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,4 +15,5 @@ public class ResumeAnalysisResponse {
     private int matchScore;
     private List<String> strengths;
     private List<String> suggestions;
+
 }

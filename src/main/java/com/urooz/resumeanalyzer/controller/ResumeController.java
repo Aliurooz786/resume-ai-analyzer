@@ -1,7 +1,8 @@
-package com.urooz.resume_ai_analyzer.controller;
+package com.urooz.resumeanalyzer.controller;
 
-import com.urooz.resume_ai_analyzer.model.ResumeAnalysisResponse;
-import com.urooz.resume_ai_analyzer.service.ResumeService;
+
+import com.urooz.resumeanalyzer.dto.ResumeAnalysisResponse;
+import com.urooz.resumeanalyzer.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,8 @@ public class ResumeController {
             @RequestParam("resumeFile") MultipartFile resumeFile,
             @RequestParam("jobDescription") String jobDescription
     ) {
-        log.info("Received resume: {} for analysis against JD", resumeFile.getOriginalFilename());
-
+        log.info("Received resume: {} for analysis", resumeFile.getOriginalFilename());
         ResumeAnalysisResponse response = resumeService.analyzeResume(resumeFile, jobDescription);
-
         return ResponseEntity.ok(response);
     }
 }

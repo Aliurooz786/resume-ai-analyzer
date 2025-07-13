@@ -1,4 +1,4 @@
-package com.urooz.resume_ai_analyzer;
+package com.urooz.resumeanalyzer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
